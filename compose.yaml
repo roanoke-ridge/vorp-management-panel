@@ -1,0 +1,8 @@
+name: vorp-management-panel
+services:
+  panel:
+    hostname: panel
+    env_file: .env
+    build: .
+    network_mode: "host"
+    restart: on-failure

@@ -1,0 +1,277 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "mysql"
+    url      = env("DATABASE_URL")
+}
+
+// Necessary for Next auth
+model Account {
+    id                String  @id @default(cuid())
+    userId            String
+    type              String
+    provider          String
+    providerAccountId String
+    refresh_token     String? @db.Text
+    access_token      String? @db.Text
+    expires_at        Int?
+    token_type        String?
+    scope             String?
+    id_token          String? @db.Text
+    session_state     String?
+    user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@unique([provider, providerAccountId])
+}
+
+model Session {
+    id           String   @id @default(cuid())
+    sessionToken String   @unique
+    userId       String
+    expires      DateTime
+    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+    id            String    @id @default(cuid())
+    name          String?
+    email         String?   @unique
+    emailVerified DateTime?
+    image         String?
+    accounts      Account[]
+    sessions      Session[]
+}
+
+model VerificationToken {
+    identifier String
+    token      String   @unique
+    expires    DateTime
+
+    @@unique([identifier, token])
+}
+
+
+
+// probably remove all above
+
+
+
+model bank_users {
+  id             Int     @id @default(autoincrement())
+  name           String  @db.VarChar(50)
+  identifier     String  @db.VarChar(50)
+  charidentifier Int
+  money          Float  @default(0)
+  gold           Float  @default(0)
+  items          String? @default("[]") @db.LongText
+  invspace       Int
+
+  @@index([name], map: "name")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model character_inventories {
+  character_id    Int?
+  inventory_type  String    @default("default") @db.VarChar(100)
+  item_crafted_id Int
+  item_name       String?   @default("item") @db.VarChar(50)
+  amount          Int?
+  created_at      DateTime? @default(now()) @db.Timestamp(0)
+
+  @@index([character_id, inventory_type], map: "character_inventory_idx")
+  @@ignore
+}
+
+model characters {
+  identifier              String                    @default("") @db.VarChar(50)
+  charidentifier          Int                       @unique(map: "charidentifier") @default(autoincrement())
+  steamname               String                    @default("") @db.VarChar(50)
+  group                   String?                   @default("user") @db.VarChar(10)
+  money                   Float?                    @default(0)
+  gold                    Float?                    @default(0)
+  rol                     Float                     @default(0)
+  xp                      Int?                      @default(0)
+  healthouter             Int?                      @default(500)
+  healthinner             Int?                      @default(100)
+  staminaouter            Int?                      @default(100)
+  staminainner            Int?                      @default(100)
+  hours                   Float                     @default(0) @db.Float
+  inventory               String?                   @db.LongText
+  job                     String?                   @default("unemployed") @db.VarChar(50)
+  joblabel                String?                   @default("job label") @db.VarChar(255)
+  status                  String?                   @default("{}") @db.VarChar(140)
+  firstname               String?                   @default(" ") @db.VarChar(50)
+  lastname                String?                   @default(" ") @db.VarChar(50)
+  age                     Int                       @default(0)
+  character_desc          String                    @default("none") @db.MediumText
+  nickname                String?                   @default("none") @db.VarChar(50)
+  gender                  String                    @default("none") @db.VarChar(50)
+  skinPlayer              String?                   @db.LongText
+  compPlayer              String?                   @db.LongText
+  compTints               String?                   @db.LongText
+  jobgrade                Int?                      @default(0)
+  coords                  String?                   @db.LongText
+  isdead                  Boolean?                  @default(false)
+  skills                  String?                   @db.LongText
+  ammo                    String?                   @default("{}") @db.VarChar(1000)
+  LastLogin               DateTime?                 @db.Date
+  discordid               String?                   @db.VarChar(255)
+  needs                   String?                   @default("{}") @db.VarChar(255)
+  UIposition              String?                   @default("{}") @db.LongText
+  gunsmith                Float?                    @default(0)
+  slots                   Decimal                   @default(35.0) @db.Decimal(20, 1)
+  meta                    String?                   @default("{}") @db.MediumText
+  users                   users                     @relation(fields: [identifier], references: [identifier], onDelete: Cascade, map: "FK_characters_users")
+  rr_business_ledger_logs rr_business_ledger_logs[]
+
+  @@unique([identifier, charidentifier], map: "identifier_charidentifier")
+  @@index([ammo(length: 768)], map: "ammo")
+}
+
+model clothes_bought {
+  id         Int     @id @default(autoincrement())
+  identifier String  @db.VarChar(100)
+  charid     Int
+  hash       BigInt
+  drawable   BigInt?
+  albedo     BigInt?
+  normal     BigInt?
+  material   BigInt?
+  palette    BigInt?
+  tint0      Int?    @db.SmallInt
+  tint1      Int?    @db.SmallInt
+  tint2      Int?    @db.SmallInt
+
+  @@index([identifier, charid], map: "identifier")
+}
+
+model items {
+  id         Int     @unique(map: "id") @default(autoincrement())
+  item       String  @id @db.VarChar(50)
+  label      String  @db.VarChar(50)
+  limit      Int     @default(1)
+  can_remove Int     @default(1) @db.TinyInt
+  type       String? @db.VarChar(50)
+  usable     Int?    @db.TinyInt
+  desc       String  @default("nice item") @db.VarChar(5550)
+  metadata   String? @default("{}") @db.LongText
+  weight     Decimal @default(0.25) @db.Decimal(20, 2)
+}
+
+model items_crafted {
+  id           Int      @id @unique(map: "ID") @default(autoincrement())
+  character_id Int
+  item_id      Int
+  item_name    String?  @default("item") @db.VarChar(50)
+  updated_at   DateTime @default(now()) @db.Timestamp(0)
+  metadata     String   @db.LongText
+
+  @@index([character_id], map: "crafted_item_idx")
+}
+
+model loadout {
+  id             Int     @id @default(autoincrement())
+  identifier     String  @db.VarChar(50)
+  charidentifier Int?
+  name           String? @db.VarChar(50)
+  ammo           String  @default("{}") @db.VarChar(255)
+  components     String  @default("[]") @db.VarChar(255)
+  dirtlevel      Float?  @default(0)
+  mudlevel       Float?  @default(0)
+  conditionlevel Float?  @default(0)
+  rustlevel      Float?  @default(0)
+  used           Int?    @default(0) @db.TinyInt
+  dropped        Int     @default(0)
+  comps          String  @default("{}") @db.VarChar(5550)
+  used2          Int     @default(0) @db.TinyInt
+  curr_inv       String  @default("default") @db.VarChar(100)
+  label          String? @db.VarChar(255)
+  serial_number  String? @db.VarChar(50)
+  custom_label   String? @db.VarChar(50)
+  custom_desc    String? @db.VarChar(50)
+
+  @@index([id], map: "id")
+}
+
+model outfits {
+  id             Int     @id @default(autoincrement())
+  identifier     String  @db.VarChar(45)
+  charidentifier Int?
+  title          String? @db.VarChar(255)
+  comps          String? @db.LongText
+  compTints      String? @db.LongText
+}
+
+model plants {
+  id     Int     @id @default(autoincrement())
+  coords String? @db.LongText
+  type   String  @db.VarChar(100)
+  water  Float
+  growth Float
+  rate   Float
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model rr_business_ledger {
+  id                      Int                       @id @default(autoincrement())
+  ledger                  String                    @unique(map: "ledger") @db.VarChar(50)
+  balance                 Decimal                   @default(0.00) @db.Decimal(20, 2)
+  rr_business_ledger_logs rr_business_ledger_logs[]
+
+  @@map("rr-business-ledger")
+}
+
+model rr_business_ledger_logs {
+  id                 Int                @id @default(autoincrement())
+  ledger             String             @db.VarChar(50)
+  amount             Decimal            @db.Decimal(20, 2)
+  charidentifier     Int
+  datetime           DateTime?          @default(now()) @db.DateTime(0)
+  rr_business_ledger rr_business_ledger @relation(fields: [ledger], references: [ledger], onDelete: NoAction, map: "FK__rr-business-ledger")
+  characters         characters         @relation(fields: [charidentifier], references: [charidentifier], onDelete: NoAction, map: "FK_rr-business-ledger-logs_characters")
+
+  @@index([ledger], map: "FK__rr-business-ledger")
+  @@index([charidentifier], map: "FK_rr-business-ledger-logs_characters")
+  @@map("rr-business-ledger-logs")
+}
+
+model users {
+  identifier  String       @id @unique(map: "identifier") @db.VarChar(50)
+  group       String?      @default("user") @db.VarChar(50)
+  warnings    Int?         @default(0)
+  banned      Boolean?
+  banneduntil Int?         @default(0)
+  char        Int?         @default(5)
+  characters  characters[]
+}
+
+model wagons {
+  id         Int     @id @default(autoincrement())
+  identifier String  @db.VarChar(40)
+  charid     Int
+  selected   Int     @default(0)
+  model      String  @db.VarChar(50)
+  name       String  @db.VarChar(50)
+  info       String? @db.VarChar(1000)
+  components String? @default("{\"colors\":false,\"livery\":false,\"props\":false,\"lights\":false}") @db.VarChar(500)
+  broken     Int?    @default(0)
+  stats      String? @default("{\"body\":1000, \"wheels\":0}") @db.VarChar(500)
+  carry      String? @default("{}") @db.LongText
+  stored     String? @db.VarChar(100)
+
+  @@index([charid], map: "FK_horses_characters")
+  @@index([model], map: "model")
+}
+
+model whitelist {
+  id              Int      @id @default(autoincrement())
+  identifier      String   @unique(map: "identifier") @db.VarChar(50)
+  status          Boolean?
+  firstconnection Boolean? @default(true)
+  discordid       String?  @default("0") @db.VarChar(50)
+}

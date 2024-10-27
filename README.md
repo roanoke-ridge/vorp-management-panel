@@ -32,5 +32,8 @@ In the future: (not an exhaustive list)
 1. Copy `.env.example` to `.env` and add your MySQL Connection String to the `DATABASE_URL` variable
 2. Run `docker compose -f "compose.yaml" up -d --build`
 
+### Set up Discord Authentication
+All API endpoints are protected behind Discord authentication. In your `.env` file that you set up in the instructions above, you'll need to also [set up a Discord application](https://discord.com/developers/applications) and under `OAUTH2`, copy the `CLIENT ID` and `CLIENT SECRET` into your `.env` file as well. Authentication is based on Discord roles, so users in your Discord server with a particular role will be able to log into the panel. You'll need to copy your Discord server ID and the role ID you want to use into your `.env` file.
+
 ## Contributing
 Pull requests are welcome. Please ensure that your changes lint and build successfully.

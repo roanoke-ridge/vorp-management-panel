@@ -1,8 +1,8 @@
 import { z } from "zod";
-import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
+import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 
 export const characterRouter = createTRPCRouter({
-  getAll: publicProcedure.query(async ({ ctx }) => {
+  getAll: protectedProcedure.query(async ({ ctx }) => {
     const characters = await ctx.prisma.characters.findMany({
       select: {
         charidentifier: true,
@@ -21,7 +21,7 @@ export const characterRouter = createTRPCRouter({
     return characters;
   }),
 
-  getById: publicProcedure.input(z.number()).query(async ({ ctx, input }) => {
+  getById: protectedProcedure.input(z.number()).query(async ({ ctx, input }) => {
     const character = await ctx.prisma.characters.findUnique({
       where: { charidentifier: input },
       select: {
@@ -43,7 +43,7 @@ export const characterRouter = createTRPCRouter({
     return character;
   }),
 
-  delete: publicProcedure.input(z.number()).mutation(async ({ ctx, input }) => {
+  delete: protectedProcedure.input(z.number()).mutation(async ({ ctx, input }) => {
     return await ctx.prisma.characters.delete({
       where: { charidentifier: input },
     });

@@ -5,12 +5,12 @@ import { MobileSidebar } from "@/components/layout/mobile-sidebar";
 import Link from "next/link";
 import { Github } from "lucide-react";
 import Image from 'next/image';
-// import { UserNav } from "@/components/layout/user-nav";
-// import { signIn, useSession } from "next-auth/react";
+import { UserNav } from "@/components/layout/user-nav";
+import { signIn, useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 
 export default function Header() {
-  // const { data: sessionData } = useSession();
+  const { data: sessionData } = useSession();
   return (
     <div className="supports-backdrop-blur:bg-background/60 fixed left-0 right-0 top-0 z-20 border-b bg-background/95 backdrop-blur">
       <nav className="flex h-16 items-center justify-between px-4">
@@ -39,18 +39,17 @@ export default function Header() {
           </Button>
           <ThemeToggle />
 
-          {/* todo: future discord auth */}
-          {/* {sessionData?.user ? (
+          {sessionData?.user ? (
             <UserNav user={sessionData.user} />
           ) : (
             <Button size="sm"
               onClick={() => {
-                void signIn();
+                void signIn("discord");
               }}
             >
               Sign In
             </Button>
-          )} */}
+          )}
         </div>
       </nav>
     </div>

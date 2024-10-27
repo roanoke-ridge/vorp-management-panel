@@ -1,15 +1,15 @@
 import { z } from "zod";
-import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
+import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { itemFormSchema } from "@/lib/validators";
 
 export const itemRouter = createTRPCRouter({
-  getAll: publicProcedure.query(async ({ ctx }) => {
+  getAll: protectedProcedure.query(async ({ ctx }) => {
     const items = await ctx.prisma.items.findMany()
 
     return items;
   }),
 
-  getById: publicProcedure.input(z.number()).query(async ({ ctx, input }) => {
+  getById: protectedProcedure.input(z.number()).query(async ({ ctx, input }) => {
     const item = await ctx.prisma.items.findUnique({
       where: { id: input },
     });
@@ -17,7 +17,7 @@ export const itemRouter = createTRPCRouter({
     return item;
   }),
 
-  create: publicProcedure
+  create: protectedProcedure
     .input(itemFormSchema)
     .mutation(async ({ ctx, input }) => {
       return await ctx.prisma.items.create({
@@ -25,7 +25,7 @@ export const itemRouter = createTRPCRouter({
       });
     }),
 
-  update: publicProcedure
+  update: protectedProcedure
     .input(itemFormSchema)
     .mutation(async ({ ctx, input }) => {
       if (!input.id) { return false; }
@@ -35,7 +35,7 @@ export const itemRouter = createTRPCRouter({
       });
     }),
 
-  delete: publicProcedure.input(z.number()).mutation(async ({ ctx, input }) => {
+  delete: protectedProcedure.input(z.number()).mutation(async ({ ctx, input }) => {
     return await ctx.prisma.items.delete({
       where: { id: input },
     });

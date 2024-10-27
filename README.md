@@ -1,5 +1,8 @@
 # VORP Management Panel
 
+## ⚠️WARNING⚠️
+Right now, this panel is **unauthenticated**. Making it available to the outside network could result in other people finding it and viewing sensitive data or worse, deleting or modifying data in your database. Do not allow access to this from outside networks yet.
+
 ## Purpose
 The end-goal is to have a feature-rich management panel for VORP-based servers. Right now, only a few features exist, but the todo list is too long to bother writing here.
 

@@ -9,7 +9,6 @@ As of now:
 - Viewing basic user stats
 
 In the future: (not an exhaustive list)
-- Discord authentication
 - Editing users and characters
 - Heatmaps
 - Log viewing
